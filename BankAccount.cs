@@ -10,10 +10,12 @@ namespace BankingApp
         private string _accountName;
         private string _accountNumber;
         private string _accountType;
+        private IFraudDetector _accountMonitor;
 
 
-        public BankAccount(string accountName, string accountNumber, string accountType, double startingBalance = 0)
+        public BankAccount(IFraudDetector accountMonitor, string accountName, string accountNumber, string accountType, double startingBalance = 0)
         {
+            _accountMonitor = accountMonitor;
             _accountName = accountName;
             _accountNumber = accountNumber;
             _accountType = accountType;
@@ -36,6 +38,8 @@ namespace BankingApp
             }
             else
             {
+                if (_accountMonitor.IsSuspicious(amountToDeposit) == true)
+                    _accountMonitor.RaiseAlarm(_accountNumber, _accountName, amountToDeposit);
                 _accountBalance += amountToDeposit;
             }
             return _accountBalance;
@@ -59,6 +63,8 @@ namespace BankingApp
             }
             else
             {
+                if (_accountMonitor.IsSuspicious(amountToWithdraw) == true)
+                    _accountMonitor.RaiseAlarm(_accountNumber, _accountName, amountToWithdraw);
                 _accountBalance -= amountToWithdraw;
             }
             return _accountBalance;
